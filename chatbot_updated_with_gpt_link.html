@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project44 Product Training Module</title>
+    
+    <style>
+        :root {
+            /* Project44 Inspired Palette */
+            --p44-navy: #1F2A44;
+            --p44-blue: #00C0F3;
+            --text-color: #333333;
+            --bg-color: #f4f7f6;
+            --white: #ffffff;
+            --success-green: #28a745;
+            --error-red: #dc3545;
+            --chat-bg: #f8f9fa;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; }
+        
+        header { background-color: var(--p44-navy); color: var(--white); padding: 1rem 2rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header h1 { font-weight: 600; letter-spacing: 0.5px; font-size: 1.5rem; }
+
+        .container { max-width: 800px; width: 95%; margin: 2rem auto; background: var(--white); border-radius: 8px; box-shadow: 0 4px 15px rgba(31, 42, 68, 0.1); padding: 2rem; flex: 1; }
+
+        /* --- VIDEO IFRAME STYLES (Restored from your old code) --- */
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* --- CHAT STYLES --- */
+        .chat-box { border: 1px solid #e0e0e0; background-color: var(--chat-bg); border-radius: 8px; padding: 15px; margin-bottom: 2rem; margin-top: 2rem; }
+        .chat-header { font-weight: bold; color: var(--p44-navy); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .chat-history { height: 200px; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin-bottom: 10px; font-size: 0.9rem; }
+        .chat-message { margin-bottom: 8px; line-height: 1.4; }
+        .chat-message.user { color: #333; font-weight: 600; }
+        .chat-message.ai { color: var(--p44-navy); }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem; }
+        .chat-input-area button { background-color: var(--p44-navy); color: white; border: none; padding: 0 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        .chat-description { margin: 0 0 12px 0; color: #555; font-size: 0.95rem; line-height: 1.45; }
+        .chat-actions { display: flex; justify-content: center; margin: 10px 0 12px; }
+        .chat-link { text-decoration: none; width: 100%; max-width: 320px; text-align: center; }
+        .chat-note { margin: 0; font-size: 0.85rem; color: #666; text-align: center; line-height: 1.4; }
+
+        /* BUTTONS & UI */
+        .btn { background-color: var(--p44-blue); color: var(--white); border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: background-color 0.2s ease; display: block; margin: 0 auto; }
+        .btn:hover { background-color: #009ac2; }
+        .btn.secondary { background-color: var(--p44-navy); margin-top: 10px; }
+
+        /* QUIZ & RESULTS */
+        .quiz-section, .result-section { display: none; }
+        .progress-bar-container { width: 100%; background-color: #e9ecef; height: 8px; border-radius: 4px; margin-bottom: 2rem; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background-color: var(--p44-navy); width: 0%; transition: width 0.3s ease; }
+        .question-text { font-size: 1.2rem; font-weight: 700; color: var(--p44-navy); margin-bottom: 1.5rem; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background-color: var(--white); border: 2px solid #e0e0e0; padding: 15px; text-align: left; border-radius: 6px; cursor: pointer; font-size: 1rem; transition: all 0.2s ease; color: var(--text-color); }
+        .option-btn:hover { border-color: var(--p44-blue); background-color: #f0fbff; }
+        .score-display { font-size: 3rem; font-weight: bold; color: var(--p44-navy); margin-bottom: 1rem; text-align: center; }
+        .result-message { font-size: 1.2rem; margin-bottom: 2rem; text-align: center; }
+        .hidden { display: none !important; }
+
+        /* CERTIFICATE */
+        #certificate-view { display: none; background: white; text-align: center; max-width: 900px; margin: 2rem auto; border: 1px solid #ddd; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .cert-card { position: relative; padding: 40px; border: 15px solid var(--p44-navy); background: #fff; min-height: 600px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .cert-inner-border { border: 2px solid #ddd; width: calc(100% - 20px); height: calc(100% - 20px); position: absolute; top: 10px; left: 10px; pointer-events: none; }
+        .cert-header { font-size: 48px; font-weight: bold; color: var(--p44-navy); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .cert-subtext { font-size: 18px; color: #666; margin-bottom: 40px; }
+        .cert-name { font-size: 52px; font-weight: bold; color: var(--p44-blue); margin-bottom: 10px; border-bottom: 2px solid #ccc; padding-bottom: 10px; display: inline-block; min-width: 50%; }
+        .cert-course { font-size: 28px; font-weight: bold; color: var(--p44-navy); margin-top: 30px; margin-bottom: 50px; }
+        .cert-footer { display: flex; justify-content: space-between; width: 80%; margin-top: 40px; font-size: 16px; color: var(--p44-navy); }
+        .cert-controls { padding: 20px; background: #f0f0f0; display: flex; gap: 10px; justify-content: center; }
+
+        @media print {
+            @page { size: landscape; margin: 0; }
+            html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; }
+            header, .container, .cert-controls { display: none !important; }
+            body * { visibility: hidden; }
+            #certificate-view, #certificate-view * { visibility: visible; }
+            #certificate-view { display: block !important; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; border: none; }
+            .cert-card { width: 100%; height: 100%; border-width: 10px !important; min-height: 100vh; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Logistics & Visibility Fundamentals</h1>
+    </header>
+
+    <div class="container" id="app-container">
+        
+        <div id="video-section">
+            <h2 style="color: var(--p44-navy); margin-bottom: 1rem;"> Training Video</h2>
+            
+            <div class="iframe-container">
+                <iframe id="google-drive-embed" allow="autoplay; fullscreen" allowfullscreen></iframe>
+            </div>
+
+            <div class="chat-box">
+                <div class="chat-header">
+                    <span>💬</span> Ask the P44 Training Bot
+                </div>
+
+                <p class="chat-description">
+                    Open the Training Bot in a new tab so you can keep this page open for the video and quiz.
+                </p>
+
+                <div class="chat-actions">
+                    <a class="btn secondary chat-link"
+                       href="https://chatgpt.com/g/g-6964d208797881919fa6a48ada7de11c-p44-training-bot"
+                       target="_blank" rel="noopener noreferrer">
+                        Open P44 Training Bot
+                    </a>
+                </div>
+
+                <p class="chat-note">
+                    Tip: You can paste a quiz question and ask the bot to explain the answer using the course materials.
+                </p>
+            </div>
+
+            <button class="btn" onclick="finishVideo()">I have finished watching the video</button>
+        </div>
+
+        <div id="quiz-section" class="quiz-section">
+            <div class="progress-bar-container">
+                <div id="progress-fill" class="progress-bar-fill"></div>
+            </div>
+            <div id="quiz-container">
+                <div id="question-text" class="question-text"></div>
+                <div id="options-container" class="options-list"></div>
+            </div>
+        </div>
+
+        <div id="result-section" class="result-section">
+            <div id="score-text" class="score-display">0%</div>
+            <h2 id="result-header" style="color: var(--p44-navy); text-align: center;">Completed</h2>
+            <p id="result-detail" class="result-message"></p>
+
+            <div id="success-area" class="hidden" style="margin-top: 2rem; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+                <h3 style="color: #1F2A44; margin-bottom: 1rem;">Course Passed!</h3>
+                <p style="margin-bottom: 1.5rem;">Enter your name to generate your certificate.</p>
+                <div style="max-width: 400px; margin: 0 auto;">
+                    <label for="learner-name" style="display: block; text-align: left; font-weight: bold; color: #1F2A44; margin-bottom: 5px;">Full Name:</label>
+                    <input type="text" id="learner-name" placeholder="Ex: Jane Doe" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 15px; font-size: 16px;">
+                    <button class="btn" onclick="openCertificateView()">Print / Save as PDF</button>
+                </div>
+            </div>
+
+            <div id="retry-area" class="hidden">
+                <button class="btn secondary" onclick="location.reload()">Retry Module</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="certificate-view">
+        <div class="cert-card">
+            <div class="cert-inner-border"></div>
+            <div class="cert-header">Certificate of Completion</div>
+            <div class="cert-subtext">This certifies that</div>
+            <div class="cert-name" id="cert-name-display">LEARNER NAME</div>
+            <div class="cert-subtext" style="margin-top: 20px;">has successfully passed the verified assessment for</div>
+            <div class="cert-course">Project44 Product Training</div>
+            <div class="cert-footer">
+                <div id="cert-date-display">Date: </div>
+                <div id="cert-score-display">Score: </div>
+            </div>
+            <div style="margin-top: 40px; font-size: 12px; color: #999;">Verified Corporate Training Module</div>
+        </div>
+        <div class="cert-controls no-print">
+            <button class="btn secondary" onclick="closeCertificateView()">Back / Edit Name</button>
+            <button class="btn" onclick="window.print()">Print Now</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION
+        const videoID = "1kZ1uNSwoQ7_ha4n27RIOwVUSGB5iOblA";
+        
+        const quizData = [ 
+            { "Question": "According to the sources, what is the legal role of a Freight Forwarder (FFW) in its purest definition?", "Options": [ "Carrier", "Agent", "Vessel Operator", "Consignee" ], "CorrectAnswer": 1 }, 
+            { "Question": "Which primary document does an NVOCC issue to the actual shipper to act as a binding contract of carriage?", "Options": [ "Forwarder's Certificate of Receipt (FCR)", "Master Bill of Lading (MBL)", "House Bill of Lading (HBL)", "Shipper's Letter of Instruction (SLI)" ], "CorrectAnswer": 2 }, 
+            { "Question": "What type of liability is typically associated with a Freight Forwarder acting as an agent?", "Options": [ "Full Carrier Liability", "Limited Agency Liability (Errors & Omissions)", "Strict Liability for Cargo Damage", "No Liability" ], "CorrectAnswer": 1 }, 
+            { "Question": "Which EDI message code is known as the 'heartbeat' of ocean visibility, providing granular status details for major milestones?", "Options": [ "EDI 300", "EDI 301", "EDI 304", "EDI 315" ], "CorrectAnswer": 3 }, 
+            { "Question": "Under the US Customs '10+2' rule, when must the Importer Security Filing (ISF) be submitted?", "Options": [ "24 hours after the vessel departs", "24 hours prior to loading at the foreign port", "Upon arrival at the destination port", "48 hours after the container gates in" ], "CorrectAnswer": 1 }, 
+            { "Question": "In the context of LCL consolidation, what must an NVOCC provide to link individual HBLs to a single container number in visibility platforms?", "Options": [ "Master Bill of Lading", "Vessel Schedule (EDI 323)", "Container Manifest or Stuffing Report", "Freight Invoice (EDI 310)" ], "CorrectAnswer": 2 }, 
+            { "Question": "What is a 'Street Turn' in physical logistics?", "Options": [ "A trucker reusing an empty container for a new export without returning it to the terminal", "A vessel changing course due to weather", "Returning a full container to the wrong terminal gate", "The process of weighing a container on a weighbridge" ], "CorrectAnswer": 0 }, 
+            { "Question": "Which EDI 315 segment contains the specific event code, date, and time (e.g., VD for Vessel Departure)?", "Options": [ "B4", "N9", "Q2", "R4" ], "CorrectAnswer": 0 }, 
+            { "Question": "What are the two data elements that the carrier must file under the US Customs '10+2' rule?", "Options": [ "Seller Name and Buyer Name", "Container Status Messages and Stow Plan", "Country of Origin and HTS-6 Code", "Manufacturer and Ship to Party" ], "CorrectAnswer": 1 }, 
+            { "Question": "Which status code in the B4 segment of an EDI 315 message signifies that a container has been loaded on a vessel?", "Options": [ "OA", "VA", "AE", "UV" ], "CorrectAnswer": 2 } 
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const passingScore = 80;
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // Load the Google Drive Video via ID
+            const iframe = document.getElementById('google-drive-embed');
+            iframe.src = `https://drive.google.com/file/d/${videoID}/preview`;
+        });
+
+        function finishVideo() {
+            document.getElementById('video-section').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const qData = quizData[currentQuestionIndex];
+            const progressPercent = (currentQuestionIndex / quizData.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+            document.getElementById('question-text').innerText = `${currentQuestionIndex + 1}. ${qData.Question}`;
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            qData.Options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            if(selectedIndex === quizData[currentQuestionIndex].CorrectAnswer) score++;
+            currentQuestionIndex++;
+            if(currentQuestionIndex < quizData.length) loadQuestion();
+            else showResults();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('result-section').style.display = 'block';
+            const finalPercent = Math.round((score / quizData.length) * 100);
+            document.getElementById('score-text').innerText = `${finalPercent}%`;
+            if(finalPercent >= passingScore) {
+                document.getElementById('result-header').innerText = "Congratulations!";
+                document.getElementById('result-header').style.color = "var(--success-green)";
+                document.getElementById('result-detail').innerText = "You have successfully passed the assessment.";
+                document.getElementById('success-area').classList.remove('hidden');
+            } else {
+                document.getElementById('result-header').innerText = "Module Failed";
+                document.getElementById('score-text').style.color = "var(--error-red)";
+                document.getElementById('result-detail').innerText = `You need ${passingScore}% to pass. Please try again.`;
+                document.getElementById('retry-area').classList.remove('hidden');
+            }
+        }
+
+        function openCertificateView() {
+            const name = document.getElementById('learner-name').value.trim();
+            if(!name) { alert("Please enter your full name first."); return; }
+            document.getElementById('cert-name-display').innerText = name;
+            document.getElementById('cert-date-display').innerText = "Date: " + new Date().toLocaleDateString();
+            document.getElementById('cert-score-display').innerText = "Score: " + Math.round((score / quizData.length) * 100) + "%";
+            document.getElementById('app-container').style.display = 'none';
+            document.querySelector('header').style.display = 'none';
+            document.getElementById('certificate-view').style.display = 'block';
+            setTimeout(() => { window.print(); }, 500);
+        }
+
+        function closeCertificateView() {
+            document.getElementById('app-container').style.display = 'block';
+            document.querySelector('header').style.display = 'block';
+            document.getElementById('certificate-view').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
